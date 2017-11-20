@@ -30,34 +30,32 @@ const walkSync = function(dir, filelist) {
   return filelist;
 };
 
-var list = walkSync(origin)
-  .filter(f => /\.(jpg|png|tif)$/i.test(f));
+var list = walkSync(origin).filter(f => /\.(jpg|png|tif)$/i.test(f))
+    count = 0;
 
-//console.log(list);
+console.log(`Total: ${list.length}`);
 
 list.forEach((orig, i) => {
-  //console.log(file);
-
   var dist = orig.replace(/^(\.{2}\/)?.*?\//, '')
             .replace(/\..*$/, ''),
       name = dist.match(/(?!\/)[^\/]*$/)[0],
-      folder = destination + '/' + dist.substring(0, dist.length - name.length);
+      folder = `${destination}/${dist.substring(0, dist.length - name.length)}`;
 
-      console.log(folder);
-      console.log(name);
-      console.log('');
+  // create full path
+  mkdirp.sync(folder);
 
-  mkdirp(folder);
-return;
-  var big = sharp(orig)
+  var img = sharp(orig)
     .resize(800)
     .jpeg({ progressive: true });
-  var small = big.clone()
-    .resize(220, 130)
+  
+  img.clone().toFile(`${folder}${name}.jpg`, (err) =>
+    console.log(`progress: ${++count} of ${list.length}`));
+
+  return;
+  img.resize(220, 130)
     .jpeg({ quality:60, progressive: true });
   
-  big.toFile(`${destination}/${i + 1}.jpg`);
-  small.toFile(`${destination}/thumb_${i + 1}.jpg`);
+  img.toFile(`${destination}/thumb_${i + 1}.jpg`);
 
 });
 
