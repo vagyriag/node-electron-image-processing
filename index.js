@@ -6,10 +6,12 @@ const fs = require('fs'),
 
 const optionDefinitions = [
  { name: 'origin', alias: 'o', type: String },
- { name: 'destination', alias: 'd', type: String, defaultValue: 'result' }
+ { name: 'destination', alias: 'd', type: String, defaultValue: 'result' },
+ { name: 'thumb', alias: 't', type: Boolean, defaultValue: false },
+ { name: 'rename', alias: 'r', type: Boolean, defaultValue: false }
 ];
 const options = commandLineArgs(optionDefinitions);
-const { origin, destination } = options;
+const { origin, destination, thumb, rename } = options;
 
 if(!origin) return console.log('--origin parameter is mandatory');
 
@@ -44,6 +46,8 @@ list.forEach((orig, i) => {
   // create full path
   mkdirp.sync(folder);
 
+  if(rename) name = i + 1;
+
   var img = sharp(orig)
     .resize(800)
     .jpeg({ progressive: true });
@@ -51,12 +55,11 @@ list.forEach((orig, i) => {
   img.clone().toFile(`${folder}${name}.jpg`, (err) =>
     console.log(`progress: ${++count} of ${list.length}`));
 
-  return;
+  if(!thumb) return;
   img.resize(220, 130)
     .jpeg({ quality:60, progressive: true });
   
-  img.toFile(`${destination}/thumb_${i + 1}.jpg`);
-
+  img.toFile(`${folder}/${name}_thumb.jpg`);
 });
 
 
