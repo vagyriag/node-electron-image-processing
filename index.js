@@ -56,55 +56,10 @@ list.forEach((orig, i) => {
     console.log(`progress: ${++count} of ${list.length}`));
 
   if(!thumb) return;
-  img.resize(220, 130)
+  img.resize(220, 150)
+    .crop(sharp.strategy.entropy)
     .jpeg({ quality:60, progressive: true });
   
   img.toFile(`${folder}/${name}_thumb.jpg`);
 });
 
-
-
-
-
-
-
-
-
-
-
-return;
-
-fs.readdir(origin, (err, files) => {
-  if(err) return console.error(err);
-  
-  let count = 0;
-  console.log(files)
-  files = files.filter(f => /\.(jpg|png|tif)$/i.test(f));
-  files.forEach((file, i) => {
-    console.log(file);
-    var big = sharp(`${origin}\\${file}`)
-      .resize(800)
-      .jpeg({ progressive: true });
-    var small = big.clone()
-      .resize(220, 130)
-      .jpeg({ quality:60, progressive: true });
-    
-    big.toFile(`${destination}/${i + 1}.jpg`);
-    small.toFile(`${destination}/thumb_${i + 1}.jpg`);
-
-      /*Jimp.read(`${origin}\\${file}`)
-        .then(img => {
-          img.resize(800, Jimp.AUTO)
-            .quality(60)
-            .write(`${destination}/${i + 1}.jpg`);
-          img.cover(220, 130)
-            .quality(60)
-            .write(`${destination}/thumb_${i + 1}.jpg`);
-          
-          // feedback
-          console.log(`${++count} of ${files.length}...`);
-          if(count == files.length) console.log('done!');
-        })
-        .catch(console.error);*/
-    });
-})
