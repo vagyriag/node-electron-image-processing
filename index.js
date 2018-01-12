@@ -32,27 +32,27 @@ const walkSync = function(dir, filelist) {
   return filelist;
 };
 
-var list = walkSync(origin).filter(f => /\.(jpg|png|tif)$/i.test(f))
-    count = 0;
+var list = walkSync(origin).filter(f => /\.(jpg|png|tif)$/i.test(f)),
+    count = 0, lastFolder, lastIndex;
 
 console.log(`Total: ${list.length}`);
 
 list.forEach((orig, i) => {
-  var dist = orig.replace(/^(\.{2}\/)?.*?\//, '')
-            .replace(/\..*$/, ''),
+  var dist = orig.replace(/^(\.{2}\/)?.*?\//, '').replace(/\..*$/, ''),
       name = dist.match(/(?!\/)[^\/]*$/)[0],
       folder = `${destination}/${dist.substring(0, dist.length - name.length)}`;
 
   // create full path
   mkdirp.sync(folder);
 
-  if(rename) name = i + 1;
+  if(lastFolder != folder) (lastFolder = folder) && (lastIndex = i);
+  if(rename) name = i + 1 - lastIndex;
 
   var img = sharp(orig)
     .resize(800)
     .jpeg({ progressive: true });
   
-  img.clone().toFile(`${folder}${name}.jpg`, (err) =>
+  img.clone().toFile(`${folder}/${name}.jpg`, (err) =>
     console.log(`progress: ${++count} of ${list.length}`));
 
   if(!thumb) return;
