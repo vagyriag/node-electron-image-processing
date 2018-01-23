@@ -5,22 +5,23 @@ const fs = require('fs'),
       mkdirp = require('mkdirp');
 
 const optionDefinitions = [
-  { name: 'origin',        alias: 'o', type: String                          },
-  { name: 'destination',   alias: 'd', type: String, defaultValue: 'result'  },
-  { name: 'thumb',         alias: 't', type: Boolean, defaultValue: false    },
-  { name: 'rename',        alias: 'r', type: Boolean, defaultValue: false    },
-  { name: 'ignoreSmaller', alias: 'i', type: Boolean, defaultValue: false    },
-  { name: 'width',         alias: 'W', type: Number, defaultValue: 800       },
-  { name: 'height',        alias: 'H', type: Number, defaultValue: undefined },
-  { name: 'thumbWidth',    alias: 'w', type: Number, defaultValue: 220       },
-  { name: 'thumbHeight',   alias: 'h', type: Number, defaultValue: 150       },
+  { name: 'origin',           alias: 'o', type: String                           },
+  { name: 'destination',      alias: 'd', type: String,  defaultValue: 'result'  },
+  { name: 'thumb',            alias: 't', type: Boolean, defaultValue: false     },
+  { name: 'rename',           alias: 'r', type: Boolean, defaultValue: false     },
+  { name: 'ignoreSmaller',    alias: 'i', type: Boolean, defaultValue: false     },
+  { name: 'cleanDestination', alias: 'c', type: Boolean, defaultValue: false     },
+  { name: 'width',            alias: 'W', type: Number,  defaultValue: 800       },
+  { name: 'height',           alias: 'H', type: Number,  defaultValue: undefined },
+  { name: 'thumbWidth',       alias: 'w', type: Number,  defaultValue: 220       },
+  { name: 'thumbHeight',      alias: 'h', type: Number,  defaultValue: 150       },
 ];
 const options = commandLineArgs(optionDefinitions);
-const { origin, destination, thumb, rename, ignoreSmaller, width, height, thumbWidth, thumbHeight } = options;
+const { origin, destination, thumb, rename, ignoreSmaller, cleanDestination, width, height, thumbWidth, thumbHeight } = options;
 
 if(!origin) return console.log('--origin parameter is mandatory');
 
-rimraf.sync(destination);
+if(cleanDestination) console.log('cleaning destination...'), rimraf.sync(destination);
 
 // List all files in a directory in Node.js recursively in a synchronous fashion
 const walkSync = function(dir, filelist) {
