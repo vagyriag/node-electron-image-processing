@@ -5,21 +5,23 @@ const fs = require('fs'),
       mkdirp = require('mkdirp');
 
 const optionDefinitions = [
-  { name: 'origin',           alias: 'o', type: String                           },
+  { name: 'origin',           alias: 'o', type: String,  defaultValue: undefined },
   { name: 'destination',      alias: 'd', type: String,  defaultValue: 'result'  },
   { name: 'thumb',            alias: 't', type: Boolean, defaultValue: false     },
   { name: 'rename',           alias: 'r', type: Boolean, defaultValue: false     },
   { name: 'ignoreSmaller',    alias: 'i', type: Boolean, defaultValue: false     },
   { name: 'cleanDestination', alias: 'c', type: Boolean, defaultValue: false     },
+  { name: 'buffer',           alias: 'b', type: Boolean, defaultValue: false     },
   { name: 'width',            alias: 'W', type: Number,  defaultValue: 800       },
   { name: 'height',           alias: 'H', type: Number,  defaultValue: undefined },
   { name: 'thumbWidth',       alias: 'w', type: Number,  defaultValue: 220       },
   { name: 'thumbHeight',      alias: 'h', type: Number,  defaultValue: 150       },
 ];
 const options = commandLineArgs(optionDefinitions);
-const { origin, destination, thumb, rename, ignoreSmaller, cleanDestination, width, height, thumbWidth, thumbHeight } = options;
+var { origin, destination, thumb, rename, ignoreSmaller, cleanDestination, buffer, width, height, thumbWidth, thumbHeight } = options;
 
 if(!origin) return console.log('--origin parameter is mandatory');
+if(buffer) sharp.cache(false);
 
 if(cleanDestination) console.log('cleaning destination...'), rimraf.sync(destination);
 
@@ -57,22 +59,27 @@ list.forEach((orig, i) => {
   var img = sharp(orig);
 
   img.metadata().then((meta) => {
-    if(ignoreSmaller && meta.width <= width) return console.log(`progress: ${++count} of ${list.length} - ignored`);
+    const feedback = `progress: ${++count} of ${list.length}`,
+      filename = `${folder}/${name}.jpg`,
+      thumbname = `${folder}/${name}_thumb.jpg`;
+    if(ignoreSmaller && meta.width <= width) return console.log(`${feedback} - ignored`);
 
     img.resize(width, height)
       .withoutEnlargement()
       .crop(sharp.strategy.entropy)
       .jpeg({ progressive: true });
     
-    img.clone().toFile(`${folder}/${name}.jpg`, (err) =>
-      console.log(`progress: ${++count} of ${list.length}`));
+    if(buffer)
+      img.clone().toBuffer((err, buffer) => fs.writeFile(filename, buffer, (e) => console.log(feedback)));
+    else
+      img.clone().toFile(filename, (err) => console.log(feedback));
 
     if(!thumb) return;
     img.resize(thumbWidth, thumbHeight)
       .crop(sharp.strategy.entropy)
       .jpeg({ quality:60, progressive: true });
     
-    img.toFile(`${folder}/${name}_thumb.jpg`);
+    img.toFile(thumbname);
 
   });
 });
