@@ -15,9 +15,7 @@ function imageProcessing ({
 
   // mandatory origin
   if(!origin) return console.log('--origin parameter is mandatory');
-
-  if(origin.charAt(origin.length - 1) !== '/') origin += '/';
-
+  if(!/\/$/.test(origin)) origin += '/';
 
   // no cache with buffer (overwrite)
   if(buffer) sharp.cache(false);

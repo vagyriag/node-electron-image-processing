@@ -6,7 +6,7 @@ label{
 }
 
 nav{
-  background: $gray-200;
+  background: $gray-400;
   position: relative;
   -webkit-app-region: drag;
   
@@ -33,6 +33,22 @@ nav{
   }
 }
 
-section{
-  padding: 2em;
+.paths-panel{
+  padding: 2rem;
+
+  .input-group{
+    margin-top: .5rem;
+  }
+  label{
+    font-weight: bold;
+  }
+}
+.options-panel{
+  padding: 2rem;
+  height: 100%;
+  background-color: $gray-200;
+
+  .input-group{
+    margin-top: .2rem;
+  }
 }
