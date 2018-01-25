@@ -29,6 +29,10 @@ class Root extends React.Component <any, {
     this.dialog = this.dialog.bind(this);
   }
 
+  close() {
+    remote.getCurrentWindow().close();
+  }
+
   process(e) {
     e.preventDefault();
     var { origin, destination, thumb, rename, ignoreSmaller, cleanDestination, buffer, width, height, thumbWidth, thumbHeight } = this.state;
@@ -45,7 +49,9 @@ class Root extends React.Component <any, {
     var { origin, destination, thumb, rename, ignoreSmaller, cleanDestination, buffer, width, height, thumbWidth, thumbHeight } = this.state;
     return <div>
       <nav>
-        <span>Image Processing</span>
+        <h1 className="title">Image Processing</h1>
+
+        <button className="btn btn-danger" onClick={this.close}><span className="oi oi-x" /></button>
       </nav>
 
       <section>
