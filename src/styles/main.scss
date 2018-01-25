@@ -1,0 +1,22 @@
+@import "bootstrap";
+@import "../../node_modules/open-iconic/font/css/open-iconic-bootstrap.scss";
+
+label{
+  display: block;
+}
+
+nav{
+  padding: .6em 2em;
+  background: $gray-200;
+  -webkit-app-region: drag;
+
+  span{
+    font-weight: bold;
+    font-size: 1.1em;
+    line-height: 1;
+  }
+}
+
+section{
+  padding: 2em;
+}

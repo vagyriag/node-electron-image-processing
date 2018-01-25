@@ -1,2 +1,5 @@
 node_modules
 result
+**/npm-debug.log
+.vscode
+dist
