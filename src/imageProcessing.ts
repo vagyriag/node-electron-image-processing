@@ -3,7 +3,9 @@ const fs = require('fs'),
       rimraf = require('rimraf'),
       mkdirp = require('mkdirp');
 
-function imageProcessing ({ 
+var logger = defaultLogger;
+
+function process ({ 
       origin, destination = 'result',
       thumb, rename, ignoreSmaller, cleanDestination, buffer,
       width = 800, height = undefined, thumbWidth = 220, thumbHeight = 150 
@@ -11,24 +13,22 @@ function imageProcessing ({
       origin: string, destination?: string,
       thumb?: boolean, rename?: boolean, ignoreSmaller?: boolean, cleanDestination?: boolean, buffer?: boolean,
       width?: number, height?: number, thumbWidth?: number, thumbHeight?: number,
-    },
-    logger: (type: string, data?: any) => void = theLogger) {
+    }) {
 
   // mandatory origin
   if(!origin) return logger('no-origin');
-  if(!/\/$/.test(origin)) origin += '/';
 
   // no cache with buffer (overwrite)
   if(buffer) sharp.cache(false);
 
   // clean destination folder (DANGER)
-  if(cleanDestination) console.log('cleaning destination...'), rimraf.sync(destination);
+  if(cleanDestination) logger('cleaning'), rimraf.sync(destination);
 
   // files array
-  var list = walkSync(origin).filter(f => /\.(jpg|png|tif)$/i.test(f)),
+  var list = getImageList(origin),
       count = 0, lastFolder, lastIndex;
 
-  console.log(`Total: ${list.length}`);
+  logger('start', { total: list.length });
 
   list.forEach((orig, i) => {
     // relative folder and name without extension
@@ -50,20 +50,22 @@ function imageProcessing ({
     var img = sharp(orig);
 
     img.metadata().then((meta) => {
-      const feedback = `progress: ${++count} of ${list.length}`,
-        filename = `${folder}/${name}.jpg`,
-        thumbname = `${folder}/${name}_thumb.jpg`;
-      if(ignoreSmaller && meta.width <= width) return console.log(`${feedback} - ignored`);
+      const filename = `${folder}/${name}.jpg`,
+        thumbname = `${folder}/${name}_thumb.jpg`,
+        log = (more?) => (logger('progress', { count: ++count, total: list.length, ...more }), (count === list.length && logger('end')));
+
+      if(ignoreSmaller && meta.width <= width) return log({ ignored: true });
 
       img.resize(width, height)
-        .withoutEnlargement()
         .crop(sharp.strategy.entropy)
         .jpeg({ progressive: true });
       
       if(buffer)
-        img.clone().toBuffer((err, buffer) => fs.writeFile(filename, buffer, (e) => console.log(feedback)));
+        img.clone().toBuffer((err, buffer) => fs.writeFile(filename, buffer, (e) => log()));
       else
-        img.clone().toFile(filename, (err) => console.log(feedback));
+        img.clone().toFile(filename, (e) => log());
+
+      if(count === list.length) logger('end');
 
       if(!thumb) return;
       img.resize(thumbWidth, thumbHeight)
@@ -91,12 +93,24 @@ function walkSync (dir, filelist?) {
   return filelist;
 };
 
-function theLogger (type: string, data?: any){
-  console.log(() => {
-    switch(type){
-      case 'no-origin': return '--origin parameter is mandatory';
-    }
-  });
+function getImageList (dir) {
+  if(!/\/$/.test(dir)) dir += '/';
+  return walkSync(dir).filter(f => /\.(jpg|png|tif)$/i.test(f));
 }
 
-export default imageProcessing;
+function defaultLogger (type: string, data?: any){
+  console.log((() => {
+    switch(type){
+      case 'no-origin': return '--origin is mandatory';
+      case 'cleaning': return 'cleaning destination...';
+      case 'start': return `Total: ${data.total}`;
+      case 'progress': return `progress: ${data.count} of ${data.total}`;
+    }
+  })());
+}
+
+export default {
+  process,
+  getImageList,
+  setLogger: (log: (type: string, data?: any) => void) => logger = log,
+};

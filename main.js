@@ -2,7 +2,8 @@ const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const url = require('url');
 
-const isDev = 'ELECTRON_IS_DEV' in process.env ? parseInt(process.env.ELECTRON_IS_DEV, 10) === 1 : (process.defaultApp || /node_modules[\\/]electron[\\/]/.test(process.execPath));
+const isDev = 'ELECTRON_IS_DEV' in process.env ? parseInt(process.env.ELECTRON_IS_DEV, 10) === 1 : 
+              (process.defaultApp || /node_modules[\\/]electron[\\/]/.test(process.execPath));
 
 let win;
 

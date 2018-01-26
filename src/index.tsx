@@ -9,10 +9,11 @@ class Root extends React.Component <any, {
     origin: string, destination: string,
     thumb: boolean, rename: boolean, ignoreSmaller: boolean, cleanDestination: boolean, buffer: boolean,
     width: number, height: number, thumbWidth: number, thumbHeight: number,
+    log: { type: string, data?: any }
   }>{
   state = {
-    origin           : 'C:\\Users\\gavi\\Desktop\\sofi\\moni', // TODO: remove
-    destination      : 'C:\\Users\\gavi\\Desktop\\lala',       // TODO: remove
+    origin           : 'C:\\Users\\webmaster\\Desktop\\New Teacher Website\\apartments', // TODO: remove
+    destination      : 'C:\\Users\\webmaster\\Desktop\\2',                               // TODO: remove
     thumb            : true,
     rename           : false,
     ignoreSmaller    : false,
@@ -21,13 +22,19 @@ class Root extends React.Component <any, {
     width            : 800,
     height           : undefined,
     thumbWidth       : 220,
-    thumbHeight      : 150
+    thumbHeight      : 150,
+    log              : { type: '', data: null },
   };
 
   constructor(props){
     super(props);
     this.process = this.process.bind(this);
     this.dialog = this.dialog.bind(this);
+  }
+
+  componentDidMount(){
+    imageProcessing.setLogger((type, data) => this.setState({ log: { type, data } }) || console.log(type, data));
+    console.log(imageProcessing.getImageList(this.state.origin));
   }
 
   close() {
@@ -38,15 +45,25 @@ class Root extends React.Component <any, {
     e.preventDefault();
     var { origin, destination, thumb, rename, ignoreSmaller,
       cleanDestination, buffer, width, height, thumbWidth, thumbHeight } = this.state;
-
-    imageProcessing({ origin, destination,
+      
+    if(!origin) return;
+    imageProcessing.process({ origin, destination,
       thumb, rename, ignoreSmaller, cleanDestination,
       width, height, thumbWidth, thumbHeight });
   }
 
   dialog(field){
-    var [folder] = remote.dialog.showOpenDialog({ properties: ['openDirectory'] });
-    if(folder) this.setState({ [field]: folder });
+    var folders = remote.dialog.showOpenDialog({ properties: ['openDirectory'] });
+    if(folders && folders[0]) this.setState({ [field]: folders[0] });
+  }
+
+  progress(){
+    const { type, data } = this.state.log;
+    
+    if(type !== 'progress') return null;
+    return <div className="progress mt-3">
+      <div className="progress-bar progress-bar-striped progress-bar-animated" style={{ width: `${data.count / data.total * 100}%` }} />
+    </div>;
   }
 
   render() {
@@ -75,7 +92,9 @@ class Root extends React.Component <any, {
                   onChange={destination => this.setState({ destination })} 
                   onClick={this.dialog.bind(this, 'destination')} />
 
-                <button type="submit" className="btn btn-primary btn-block mt-5">Process</button>
+                <button type="submit" className="btn btn-primary btn-block mt-5" disabled={!origin}>Process</button>
+
+                {this.progress()}
               </div>
             </div>
 
