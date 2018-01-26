@@ -11,10 +11,11 @@ function imageProcessing ({
       origin: string, destination?: string,
       thumb?: boolean, rename?: boolean, ignoreSmaller?: boolean, cleanDestination?: boolean, buffer?: boolean,
       width?: number, height?: number, thumbWidth?: number, thumbHeight?: number,
-    }) {
+    },
+    logger: (type: string, data?: any) => void = theLogger) {
 
   // mandatory origin
-  if(!origin) return console.log('--origin parameter is mandatory');
+  if(!origin) return logger('no-origin');
   if(!/\/$/.test(origin)) origin += '/';
 
   // no cache with buffer (overwrite)
@@ -89,5 +90,13 @@ function walkSync (dir, filelist?) {
   });
   return filelist;
 };
+
+function theLogger (type: string, data?: any){
+  console.log(() => {
+    switch(type){
+      case 'no-origin': return '--origin parameter is mandatory';
+    }
+  });
+}
 
 export default imageProcessing;
