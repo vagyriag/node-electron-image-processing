@@ -9,7 +9,8 @@ class Root extends React.Component <any, {
     origin: string, destination: string,
     thumb: boolean, rename: boolean, ignoreSmaller: boolean, cleanDestination: boolean, buffer: boolean,
     width: number, height: number, thumbWidth: number, thumbHeight: number,
-    log: { type: string, data?: any }
+    log: { type: string, data?: any },
+    originCount: number, destinationCount: number,
   }>{
   state = {
     origin           : 'C:\\Users\\webmaster\\Desktop\\New Teacher Website\\apartments', // TODO: remove
@@ -24,6 +25,8 @@ class Root extends React.Component <any, {
     thumbWidth       : 220,
     thumbHeight      : 150,
     log              : { type: '', data: null },
+    originCount      : null,
+    destinationCount : null,
   };
 
   constructor(props){
@@ -34,7 +37,10 @@ class Root extends React.Component <any, {
 
   componentDidMount(){
     imageProcessing.setLogger((type, data) => this.setState({ log: { type, data } }) || console.log(type, data));
-    console.log(imageProcessing.getImageList(this.state.origin));
+
+    const { origin, destination } = this.state;
+    if(origin) this.setState({ originCount: imageProcessing.getImageList(origin).length });
+    if(destination) this.setState({ destinationCount: imageProcessing.getImageList(destination).length });
   }
 
   close() {
@@ -53,22 +59,29 @@ class Root extends React.Component <any, {
   }
 
   dialog(field){
-    var folders = remote.dialog.showOpenDialog({ properties: ['openDirectory'] });
-    if(folders && folders[0]) this.setState({ [field]: folders[0] });
+    var foldersList = remote.dialog.showOpenDialog({ properties: ['openDirectory'] }),
+        folder = foldersList && foldersList[0];
+    if(folder) this.setState({ [field]: folder, [`${field}Count`]: imageProcessing.getImageList(folder).length } as any);
   }
 
   progress(){
     const { type, data } = this.state.log;
     
-    if(type !== 'progress') return null;
-    return <div className="progress mt-3">
+    
+    return type === 'progress' && <div className="progress mt-3">
       <div className="progress-bar progress-bar-striped progress-bar-animated" style={{ width: `${data.count / data.total * 100}%` }} />
     </div>;
   }
 
+  canProcess(){
+    var { origin, destination, thumb, width, thumbWidth } = this.state;
+    return origin && destination && width && ((thumb && thumbWidth) || !thumb);
+  }
+
   render() {
     var { origin, destination, thumb, rename, ignoreSmaller, cleanDestination,
-      buffer, width, height, thumbWidth, thumbHeight } = this.state;
+      buffer, width, height, thumbWidth, thumbHeight,
+      originCount, destinationCount } = this.state;
     return <div>
       <nav>
         <h1 className="title">Image Processing</h1>
@@ -84,15 +97,16 @@ class Root extends React.Component <any, {
               <div className="paths-panel">
                 <Input label="Origin"
                   value={origin}
-                  onChange={origin => this.setState({ origin })}
+                  onChange={origin => this.setState({ origin, originCount: null })}
                   onClick={this.dialog.bind(this, 'origin')}
                   />
+                {originCount != null && <small>{originCount} images in <b>"{origin.split('\\').pop()}"</b> folder</small>}
                 <Input label="Destination"
                   value={destination}
-                  onChange={destination => this.setState({ destination })} 
+                  onChange={destination => this.setState({ destination, destinationCount: null })} 
                   onClick={this.dialog.bind(this, 'destination')} />
-
-                <button type="submit" className="btn btn-primary btn-block mt-5" disabled={!origin}>Process</button>
+                {destinationCount != null && <small>{destinationCount} images in <b>"{destination.split('\\').pop()}"</b> folder</small>}
+                <button type="submit" className="btn btn-primary btn-block mt-5" disabled={!this.canProcess()}>Process</button>
 
                 {this.progress()}
               </div>
@@ -109,7 +123,7 @@ class Root extends React.Component <any, {
                   </div>
                   <div className="col">
                     <Input
-                      value={width}
+                      value={width || ''}
                       onChange={width => this.setState({ width: parseInt(width) })} />
                   </div>
                   <div className="col-auto p-3">
@@ -117,7 +131,7 @@ class Root extends React.Component <any, {
                   </div>
                   <div className="col">
                     <Input
-                      value={height}
+                      value={height || ''}
                       onChange={height => this.setState({ height: parseInt(height) })} />
                   </div>
                 </div>
@@ -130,7 +144,7 @@ class Root extends React.Component <any, {
                   <div className="col">
                     <Input
                       disabled={!thumb}
-                      value={thumbWidth}
+                      value={thumbWidth || ''}
                       onChange={thumbWidth => this.setState({ thumbWidth: parseInt(thumbWidth) })} />
                   </div>
                   <div className="col-auto p-3">
@@ -139,7 +153,7 @@ class Root extends React.Component <any, {
                   <div className="col">
                     <Input
                       disabled={!thumb}
-                      value={thumbHeight}
+                      value={thumbHeight || ''}
                       onChange={thumbHeight => this.setState({ thumbHeight: parseInt(thumbHeight) })} />
                   </div>
                 </div>
