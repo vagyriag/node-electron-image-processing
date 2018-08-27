@@ -12,10 +12,13 @@ class Root extends React.Component <any, {
     log: { type: string, data?: any },
     originCount: number, destinationCount: number,
   }>{
+
   state = {
-    origin           : 'C:\\Users\\webmaster\\Desktop\\New Teacher Website\\apartments', // TODO: remove
-    destination      : 'C:\\Users\\webmaster\\Desktop\\2',                               // TODO: remove
-    thumb            : true,
+    // origin           : 'C:\\Users\\webmaster\\Desktop\\New Teacher Website\\apartments', // TODO: remove
+    // destination      : 'C:\\Users\\webmaster\\Desktop\\2',                               // TODO: remove
+    origin           : '',
+    destination      : '',
+    thumb            : false,
     rename           : false,
     ignoreSmaller    : false,
     cleanDestination : false,

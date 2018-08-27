@@ -1,22 +1,22 @@
 {
-    "compilerOptions": {
-      "module": "commonjs",
-      "moduleResolution": "node",
-      "sourceMap": true,
-      "noImplicitAny": false,
-      "target": "electron-main",
-      "jsx": "react",
-      "experimentalDecorators": true,
-      "removeComments": true,
-    },
-    "include": [
-      "src/**/*.tsx",
-      "src/**/*.ts"
-    ],
-    "exclude": [
-      "node_modules",
-    ],
-    "awesomeTypescriptLoaderOptions": {
-        /* ... */
-    }
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "noImplicitAny": false,
+    "target": "electron-main",
+    "jsx": "react",
+    "experimentalDecorators": true,
+    "removeComments": true,
+  },
+  "include": [
+    "src/**/*.tsx",
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+  ],
+  "awesomeTypescriptLoaderOptions": {
+      /* ... */
+  }
 }

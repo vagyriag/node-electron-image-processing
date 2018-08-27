@@ -95,7 +95,7 @@ function walkSync (dir, filelist?) {
 
 function getImageList (dir) {
   if(!/\/$/.test(dir)) dir += '/';
-  return walkSync(dir).filter(f => /\.(jpg|png|tif)$/i.test(f));
+  return walkSync(dir).filter(f => /\.(jpg|png|tif|cr2)$/i.test(f));
 }
 
 function defaultLogger (type: string, data?: any){
