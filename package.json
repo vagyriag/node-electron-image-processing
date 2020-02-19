@@ -16,7 +16,7 @@
     "classnames": "^2.2.5",
     "command-line-args": "^4.0.7",
     "electron": "^1.7.11",
-    "lodash": "^4.17.4",
+    "lodash": "^4.17.13",
     "mkdirp": "^0.5.1",
     "open-iconic": "^1.1.1",
     "react": "^16.2.0",
