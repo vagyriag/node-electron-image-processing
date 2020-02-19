@@ -1,5 +1,5 @@
 {
-  "name": "image-processing",
+  "name": "node-electron-image-processing",
   "version": "1.0.0",
   "description": "",
   "main": "main.js",
